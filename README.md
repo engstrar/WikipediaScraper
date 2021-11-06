@@ -4,9 +4,36 @@ This scraper will pull the headings and text data from a Wikipedia page and retu
 
 Future Development Goals:
 
+-   Error Checking - Return an error if the Wikipedia page doesn't exist
 -   Clean data better - there are still a few HTML elements included in the text of the scraped data
 -   Clean up references - currently they are scraping a mix of text and HTML
 -   Scrape images from each page - return URLs for each image Wikipedia provides on the page
+
+---
+
+## Installing and Running Locally
+
+For whatever reason the OSU servers seem to not like keeping the scraper up for too long... You will get the best response if you run the service locally. Please follow the below steps to set up and run the scraper locally.
+
+1. Clone files from GitHub:
+
+```
+git clone https://github.com/engstrar/WikipediaScraper.git
+```
+
+2. Install all necessary node modules:
+
+```
+nmp install express axios cheerio
+```
+
+3. Run app.js
+
+```
+node app.js
+```
+
+4. Your scraper will be hosted at _http://localhost:3619/_ unless you changed the port number at the top of the app.js file.
 
 ---
 
@@ -18,9 +45,7 @@ Example:
 
 Wikipedia page to be scraped: *https://en.wikipedia.org/wiki/Foobar*
 
-Send GET request to: [_http://flip2.engr.oregonstate.edu:3619/?page=Foobar_](http://flip2.engr.oregonstate.edu:3619/?page=Foobar)
-
-_NOTE: must be on the OSU VPN to connect!_
+Send GET request to: _http://localhost:3619?page=Foobar_
 
 ---
 
@@ -89,7 +114,7 @@ Axios Documentation: https://axios-http.com/docs/intro
 ```
 const axios = require("axios");
 
-const url = 'http://flip2.engr.oregonstate.edu:3619/?page=Test';
+const url = 'http://localhost:3619?page=Test';
 
 axios(url)
     .then((response) => {
@@ -107,7 +132,7 @@ Requests Module Documentation: https://2.python-requests.org/en/master/
 ```
 import requests
 
-request = requests.get("http://flip2.engr.oregonstate.edu:3619/?page=Test")
+request = requests.get("http://localhost:3619?page=Test")
 
 data = request.json()
 ```
