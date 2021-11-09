@@ -1,5 +1,5 @@
 // Setting the port number that will be used on the FLIP2 engr server
-const port = 3619;
+const port = process.env.port;
 
 // Setting up Axios for help with requests
 const axios = require("axios");
