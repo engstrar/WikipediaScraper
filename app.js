@@ -1,5 +1,5 @@
 // Setting the port number that will be used on the FLIP2 engr server
-const port = process.env.port;
+const port = 3619;
 
 // Setting up Axios for help with requests
 const axios = require("axios");
@@ -11,216 +11,176 @@ const cheerio = require("cheerio");
 const express = require("express");
 const app = express();
 
-// Setting up fs for file system access
-// const fs = require("fs");
-
-// Testing the Reformatting of the data to better match JSON
+// Scraping Wikipedia
 app.get("/", (req, res) => {
-	// Base Wikipedia URL
-	const wikipediaUrl = "https://en.wikipedia.org/wiki/";
-
-	const url = `https://en.wikipedia.org/wiki/${req.query.page}`;
+	// Wikipedia API base URL with unique query string from request
+	const url = `https://en.wikipedia.org/api/rest_v1/page/mobile-sections/${req.query.page}?redirect=true`;
+	console.log(url);
 
 	axios(url)
 		.then((response) => {
-			// Requesting Wikipedia page's HTML using Cheerio
-			const html = response.data;
-			const $ = cheerio.load(html);
+			// Saving the data received from Wikipedia for easy access
+			const wikiData = response.data;
 
 			// Object to store all page data in while scrapping
 			const pageData = {};
 
-			/*
-            Selecting the Title of the page and adding it to the
-            pageData object.
-            */
+			// Scraping the Title and Description
+			getBasicInfo(wikiData.lead, pageData);
 
-			// Selecting the page title & adding it to page Data
-			const title = $(".firstHeading").text();
-			pageData.title = title;
+			// Scraping the introduction
+			getIntro(wikiData.lead, pageData);
 
-			/*
-			Selecting all of the quick facts provided on the page.
-			Each quick fact is stored in an object keyed "quickFacts" 
-			within pageData. This allows for iteration through all 
-			quick facts or for the selection of individual  quick facts.
-			*/
+			// Scraping the Sections
+			getSections(wikiData.remaining, pageData);
 
-			// Scraping and formatting the quick facts
-			const factsTable = $(".infobox-label");
+			// WORK IN PROGRESS: Scraping References
+			getReferences(wikiData.remaining, pageData);
 
-			// Array for storing the quick facts
-			const quickFacts = {};
-
-			// Selecting the fact & data for each quick fact
-			// and adding it to quickFacts
-			factsTable.each(function () {
-				const fact = $(this).text();
-				const data = $(this).next().text();
-				quickFacts[fact] = data;
-			});
-
-			// Adding the quickFacts to pageData under the key "quickFacts"
-			pageData.quickFacts = quickFacts;
-
-			/*
-			Selecting the paragraphs that make up the introduction
-			on the page and storing the text in pageData as "intro"
-			*/
-
-			// Selecting the first paragraph of the intro
-			let introParagraph = $(".infobox.vcard").next();
-
-			// Variable to store the intro paragraphs in
-			let intro = "";
-
-			// Storing each paragraph of text to intro
-			while (introParagraph.is("p")) {
-				intro += introParagraph.text();
-				introParagraph = introParagraph.next();
-			}
-
-			// Adding the intro to the pageData under the key "intro"
-			pageData.intro = intro;
-
-			/*
-			Selecting each section of the page and its corresponding
-			information.
-			*/
-
-			// Selecting all of the sections
-			const sections = $(".mw-headline");
-
-			let currSection = "";
-
-			sections.each(function () {
-				// All Wikipedia pages include a variety of resource
-				// sections at the bottom that we are not going to be
-				// scraping the first section is always "See also." This
-				// will end the section scraper at this section
-				if ($(this).text() == "See also") {
-					return false;
-				}
-
-				// If the heading is a h2 then this is a Major Section,
-				// otherwise this is a subsection. For each major section
-				// start a new object to store each of the subsections in.
-				if ($(this).parent().is("h2")) {
-					// Creating a new section in pageData for this section
-					currSection = $(this).text();
-					pageData[$(this).text()] = {};
-					// Some sections will have an intro paragraph, others will not
-					// If the section has an intro paragraph scrape it and save it to
-					// the section object under the key "intro."
-					let intro = "";
-					// Finding the first paragraph of the section
-					let element = $(this).parent().next();
-					while (!element.is("p")) {
-						// If there is not an intro paragraph the first section will
-						// be a subsection "h2" heading. If there is not an intro
-						// then add an empty intro to the currSection object and move
-						// onto the next section.
-						if (element.is("h3")) {
-							currSection.intro = intro;
-							return;
-						}
-						// Otherwise keep going until a paragraph is found
-						element = element.next();
-					}
-					// Storing each paragraph of the intro to text
-					while (element.is("p")) {
-						intro += element.text();
-						element = element.next();
-					}
-					// Adding the introduction to the currSection object
-					pageData[currSection].intro = intro;
-				} else {
-					// Save the subsections name and create a variable to store its text
-					subSection = $(this).text();
-					text = "";
-
-					// Finding the first paragraph of the subsection
-					let element = $(this).parent().next();
-
-					while (!element.is("p")) {
-						element = element.next();
-					}
-
-					// Storing each paragraph of the section to text
-					while (element.is("p")) {
-						text += element.text();
-						element = element.next();
-					}
-
-					// Adding the subsection to its appropriate section within pageData
-					pageData[currSection][subSection] = text;
-				}
-			});
-
-			/*
-			WORK IN PROGRESS: Selecting Images For
-			*/
-
-			// // Selecting all of the images that are within the main body
-			// // of the page where the content is.
-			// const imgs = $("#bodyContent").find("img");
-
-			// // Variable to store the image data
-			// let images = [];
-
-			// imgs.each(function () {
-			// 	let src = $(this).attr("src");
-			// 	let alt = $(this).attr("alt");
-
-			// 	// NEED to filter out useless images
-			// 	if (src.includes(".jpeg")) {
-			// 		console.log(src);
-			// 	}
-
-			// 	// NEED to collect captions
-
-			// 	images.push({ src: src, alt: alt });
-			// });
-
-			// pageData.push({ images: images });
-
-			/*
-			Selecting each source and adding it to the pageData under
-			the key "references." The added references can be found
-			under the key corresponding to their reference number on the
-			page (i.e. {"1": "Australian Bureau of Statistics..."}).
-			*/
-
-			// Selecting each list element from the references list
-			let refs = $(".references").find("li");
-
-			// Variable for the reference number counter
-			let refNum = 1;
-
-			// Variable for the references to be stored
-			let references = {};
-
-			// Scraping the relevant data for each reference
-			refs.each(function () {
-				references[refNum] = $(this).text();
-				refNum++;
-			});
-
-			// Adding the references to the pageData under the key
-			// "references"
-			pageData.references = references;
-
-			/*
-            Last, but most important... converting the scraped data to JSON and 
-			sending the scrapped page data back to whomever requested it.
-            */
+			// Returning JSON data to whoever requested it
 			res.json(pageData);
 		})
-
-		.catch(console.error);
+		// Error Handling
+		.catch((error) => {
+			handleError(error);
+		});
 });
 
 // Communication on the server
 app.listen(port, () => {
 	console.log(`Listening on port ${port}`);
 });
+
+// Helper functions for scraping data
+function getBasicInfo(wikiData, pageData) {
+	// Scraping the Page Title
+	pageData.title = wikiData.displaytitle;
+	// Scraping the Description
+	pageData.Description = wikiData.description;
+}
+
+function getIntro(wikiData, pageData) {
+	// Scraping Intro HTML data using Cheerio
+	const html = wikiData.sections[0].text;
+	let intro = scrapeText(html);
+
+	// Adding the intro to pageData
+	pageData.intro = intro;
+}
+
+function getSections(wikiData, pageData) {
+	// Saving all sections and the current section for easy access
+	let sections = wikiData.sections;
+	let currSection = "";
+	let currSubSection = "";
+
+	// Iterating through all section
+	for (let section of sections) {
+		// We do not want to scrape the sections at the end of the page
+		const doNotScrape = [
+			"See also",
+			"References",
+			"External links",
+			"Notes",
+			"Further reading",
+		];
+		if (doNotScrape.includes(section.line)) {
+			break;
+		}
+
+		// Add all sections to pageData
+		if (section.toclevel == "1") {
+			// This is a major section
+			let sectionTitle = section.line;
+			currSection = sectionTitle;
+			pageData[currSection] = {};
+
+			// Scraping Section's Intro HTML data using Cheerio
+			const html = section.text;
+			let intro = scrapeText(html);
+
+			// Adding the section's intro to pageData
+			pageData[currSection].intro = intro;
+		} else if (section.toclevel == "2") {
+			// This is a sub-section
+			let sectionTitle = section.line;
+			currSubSection = sectionTitle;
+			pageData[currSection][currSubSection] = {};
+
+			// Scraping sub-section HTML data using Cheerio
+			const html = section.text;
+			let subSection = scrapeText(html);
+
+			// Adding subsection to pageData
+			pageData[currSection][currSubSection].intro = subSection;
+		} else {
+			// This is a sub-sub-section
+			let sectionTitle = section.line;
+
+			// Scraping the sub-sub-section HTML data using Cheerio
+			const html = section.text;
+			let subSubSection = scrapeText(html);
+
+			pageData[currSection][currSubSection][sectionTitle] = subSubSection;
+		}
+	}
+}
+
+function getReferences(wikiData, pageData) {
+	// Finding the References Section
+	let sections = wikiData.sections;
+	for (let section of sections) {
+		if (section.line == "References") {
+			// Scraping HTML with Cheerio
+			const html = section.text;
+			const $ = cheerio.load(html);
+
+			// Selecting all references
+			let refs = $("li");
+			let refNum = 1;
+			references = {};
+
+			refs.each(function () {
+				references[refNum] = "";
+				refNum++;
+			});
+			pageData.references = references;
+		}
+	}
+}
+
+function scrapeText(html) {
+	// Scraping HTML data using Cheerio
+	const $ = cheerio.load(html);
+
+	// Selecting all of the paragraph elements
+	let paragraphs = $("p");
+
+	// Returning all combined all paragraphs
+	return combineParagraphs($, paragraphs);
+}
+
+function combineParagraphs($, paragraphs) {
+	// Combining all paragraphs into single variable that is returned
+	let combined = "";
+	paragraphs.each(function () {
+		combined += $(this).text();
+	});
+	return combined;
+}
+
+// Error Handling Function
+function handleError(error) {
+	if (error.response) {
+		// Request made and server responded
+		console.log(error.response.data);
+		console.log(error.response.status);
+		console.log(error.response.headers);
+	} else if (error.request) {
+		// The request was made but no response was received
+		console.log(error.request);
+	} else {
+		// Something happened in setting up the request that triggered an Error
+		console.log("Error", error.message);
+	}
+}
