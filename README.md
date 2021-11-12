@@ -15,7 +15,7 @@ Future Development Goals:
 
 _OSU VPN Required_
 
-This scraper is accessible at: _http://flip2.engr.oregonstate.edu:3619/_
+This scraper is accessible at: _http://flip2.engr.oregonstate.edu:4203/_
 
 ---
 
@@ -50,7 +50,7 @@ nmp install express axios cheerio
 node app.js
 ```
 
-5. Your scraper will be hosted at _http://localhost:3619/_ unless you changed the port number at the top of the app.js file.
+5. Your scraper will be hosted at _http://localhost:4203/_ unless you changed the port number at the top of the app.js file.
 
 ---
 
@@ -62,7 +62,7 @@ Example:
 
 Wikipedia page to be scraped: *https://en.wikipedia.org/wiki/Foobar*
 
-Send GET request to: _http://flip2.engr.oregonstate.edu:3619/?page=Foobar_
+Send GET request to: _http://flip2.engr.oregonstate.edu:4203/?page=Foobar_
 
 ---
 
@@ -144,7 +144,7 @@ Axios Documentation: https://axios-http.com/docs/intro
 ```
 const axios = require("axios");
 
-const url = 'http://flip2.engr.oregonstate.edu:3619/?page=Test';
+const url = 'http://flip2.engr.oregonstate.edu:4203/?page=Test';
 
 axios(url)
     .then((response) => {
@@ -162,7 +162,7 @@ Requests Module Documentation: https://2.python-requests.org/en/master/
 ```
 import requests
 
-request = requests.get("http://flip2.engr.oregonstate.edu:3619/?page=Test")
+request = requests.get("http://flip2.engr.oregonstate.edu:4203/?page=Test")
 
 data = request.json()
 ```
