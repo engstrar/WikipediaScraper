@@ -1,6 +1,6 @@
 {
 	"name": "wikipediascraper",
-	"version": "2.0.0",
+	"version": "2.1.0",
 	"description": "scrapes data from wikipedia",
 	"main": "app.js",
 	"scripts": {
