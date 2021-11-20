@@ -1,5 +1,6 @@
-// Setting the port number that will be used on the FLIP2 engr server
-const port = 4203;
+// Port commented out for Heroku, but should be used for local deployment
+// Setting the port number
+// const port = 4203;
 
 // Setting up Axios for help with requests
 const axios = require("axios");

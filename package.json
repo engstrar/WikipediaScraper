@@ -10,5 +10,10 @@
 		"node": "15.x"
 	},
 	"author": "Arek M Engstrom",
-	"license": "ISC"
+	"license": "ISC",
+	"dependencies": {
+		"axios": "^0.24.0",
+		"cheerio": "^1.0.0-rc.10",
+		"express": "^4.17.1"
+	}
 }
