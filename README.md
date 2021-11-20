@@ -1,21 +1,24 @@
-# Arek's Wikipedia Scraper v2.0.0
+# Arek's Wikipedia Scraper v2.1.0
 
 This scraper will pull the headings and text data from a Wikipedia page and return the data organized into JSON format. Examples for use are provided in Node.JS and Python3.
 
+Whats New in v2.1.0:
+
+-   Project is now LIVE on Heroku! (see link below)
+-   Basic error handling added for missing and bad search queries
+-   References are now scraped, not just their number
+
 Future Development Goals:
 
--   Scrape references
--   Scrape sections with tables & bullet points
--   Clean data better - there are still a few HTML elements included in the text of the scraped data
+-   Scrape sections with tables & bullet points better
+-   Clean data better - there are still a few HTML elements included in the text of the scraped data, especially the references section
 -   Scrape images from each page - return URLs for each image Wikipedia provides on the page
 
 ---
 
 ## Accessing Online (Recommended)
 
-_OSU VPN Required_
-
-This scraper is accessible at: _http://flip2.engr.oregonstate.edu:4203/_
+This scraper is accessible at: _http://areks-wikipedia-scraper.herokuapp.com/_
 
 ---
 
@@ -62,7 +65,7 @@ Example:
 
 Wikipedia page to be scraped: *https://en.wikipedia.org/wiki/Foobar*
 
-Send GET request to: _http://flip2.engr.oregonstate.edu:4203/?page=Foobar_
+Send GET request to: _http://areks-wikipedia-scraper.herokuapp.com/?page=Foobar_
 
 ---
 
@@ -144,7 +147,7 @@ Axios Documentation: https://axios-http.com/docs/intro
 ```
 const axios = require("axios");
 
-const url = 'http://flip2.engr.oregonstate.edu:4203/?page=Test';
+const url = 'http://areks-wikipedia-scraper.herokuapp.com/?page=Test';
 
 axios(url)
     .then((response) => {
@@ -162,7 +165,7 @@ Requests Module Documentation: https://2.python-requests.org/en/master/
 ```
 import requests
 
-request = requests.get("http://flip2.engr.oregonstate.edu:4203/?page=Test")
+request = requests.get("http://areks-wikipedia-scraper.herokuapp.com/?page=Test")
 
 data = request.json()
 ```
@@ -397,31 +400,32 @@ The following data was scraped from https://en.wikipedia.org/wiki/Intel.
       }
    },
    "references":{
-      "1":"",
-      "2":"",
-      "3":"",
-      "4":"",
-      "5":"",
-      "6":"",
-      "7":"",
-      "8":"",
-      "9":"",
-      "10":"",
-      "11":"",
-      "12":"",
-      "13":"",
-      "14":"",
-      "15":"",
-      "16":"",
-      "17":"",
-      "18":"",
-      "19":"",
-      "20":"",
+      "1":" \"Intel Corporation 2020 Annual Report Form (10-K)\" (PDF). United States Securities and Exchange Commission. January 22, 2021. Retrieved January 28, 2021.",
+      "2":" \"INTC / Intel Corp. - EX-21.1 - Intel Corporation Subsidiaries - February 1, 2019\". February 1, 2019. Retrieved May 12, 2020.",
+      "3":" Vanian, Jonathan. \"Samsung Dethrones Intel As World's Biggest Chip Maker\". Fortune.",
+      "4":" \"Intel 2007 Annual Report\" (PDF). Intel. 2007. Retrieved July 6, 2011.",
+      "5":" \"10-K\". 10-K. Retrieved June 1, 2019.",
+      "6":" \"Fortune 500 Companies 2018: Who Made the List\". Fortune. Retrieved November 10, 2018.",
+      "7":" \"Secret of Intel's name revealed\". The Inquirer. 2007. Archived from the original on August 11, 2009. Retrieved June 11, 2012.CS1 maint: unfit URL (link)",
+      "8":" Goodin, Dan (September 23, 1998). \"Microsoft's holy war on Java\". CNET. Archived from the original on January 16, 2013. Retrieved November 18, 2018.",
+      "9":" Lea, Graham (December 14, 1998). \"USA versus Microsoft: the fourth week\". BBC News. Retrieved January 7, 2008.",
+      "10":" \"What is 01.org? - 01.org\". 01.org. July 13, 2012.",
+      "11":" \"Operating Segments\". Intel Corporation. Retrieved January 28, 2021.",
+      "12":" \"What Is the Intel Client Computing Group (CCG)?\".",
+      "13":" \"Intel Wins US Government Project to Develop Leading-Edge Foundry...\" Intel. Retrieved November 10, 2021.",
+      "14":" \"Intel Wins US Government Project to Develop Leading-Edge Foundry Ecosystem\". www.businesswire.com. August 23, 2021. Retrieved November 10, 2021.",
+      "15":" Sebastian, Dave (August 23, 2021). \"Intel Lands Pentagon Deal to Support Domestic Chip Making\". Wall Street Journal. ISSN 0099-9660. Retrieved November 10, 2021.",
+      "16":" \"Intel pressures the U.S. government to help subsidize chip manufacturing\". news.yahoo.com. Retrieved November 10, 2021.",
+      "17":" Dylan McGrath, EE Times. \"IDC cuts PC microprocessor forecast.\" August 2, 2011. Retrieved August 2, 2011.",
+      "18":" Agam Shah, IDG News. \"IDC Reduces Yearly Processor Shipment Growth Forecast.\" August 1, 2011. Retrieved August 2, 2011.",
+      "19":" Burke, Steve. \"GN Special Report: Intel vs. AMD Volume - AMD Moves 93% of CPU Sales to GN Readers\". www.gamersnexus.net. Retrieved December 14, 2019.",
+      "20":" \"Intel Acknowledges It Was 'Too Aggressive' With Its 10nm Plans - ExtremeTech\". www.extremetech.com. Retrieved December 14, 2019.",
+
       .
       .
       .
-      "387":"",
-      "388":""
+      "387":" Kasli, Shelley (August 10, 2016). \"Rothschild Inside, Garbage Outside\". GreatGameIndia Magazine.",
+      "388":" Bell, Kay (August 10, 2016). \"Indian city raises stink over Intel's unpaid taxes\". Don't Mess With Taxes. Retrieved January 10, 2017."
    }
 }
 ```

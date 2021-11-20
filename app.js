@@ -15,35 +15,45 @@ const app = express();
 app.get("/", (req, res) => {
 	// Wikipedia API base URL with unique query string from request
 	const url = `https://en.wikipedia.org/api/rest_v1/page/mobile-sections/${req.query.page}?redirect=true`;
-	// console.log(url);
+	console.log(url);
 
-	axios(url)
-		.then((response) => {
-			// Saving the data received from Wikipedia for easy access
-			const wikiData = response.data;
-
-			// Object to store all page data in while scrapping
-			const pageData = {};
-
-			// Scraping the Title and Description
-			getBasicInfo(wikiData.lead, pageData);
-
-			// Scraping the introduction
-			getIntro(wikiData.lead, pageData);
-
-			// Scraping the Sections
-			getSections(wikiData.remaining, pageData);
-
-			// WORK IN PROGRESS: Scraping References
-			getReferences(wikiData.remaining, pageData);
-
-			// Returning JSON data to whoever requested it
-			res.json(pageData);
-		})
-		// Error Handling
-		.catch((error) => {
-			handleError(error);
+	// If the user did not provide a page to scrape
+	if (!req.query.page) {
+		res.json({
+			Error: "Scrape a page using the query string /?page= in the URL. See https://github.com/engstrar/WikipediaScraper for more info.",
 		});
+	} else {
+		axios(url)
+			.then((response) => {
+				// Saving the data received from Wikipedia for easy access
+				const wikiData = response.data;
+
+				// Object to store all page data in while scrapping
+				const pageData = {};
+
+				// Scraping the Title and Description
+				getBasicInfo(wikiData.lead, pageData);
+
+				// Scraping the introduction
+				getIntro(wikiData.lead, pageData);
+
+				// Scraping the Sections
+				getSections(wikiData.remaining, pageData);
+
+				// WORK IN PROGRESS: Scraping References
+				getReferences(wikiData.remaining, pageData);
+
+				// Returning JSON data to whoever requested it
+				res.json(pageData);
+			})
+			// Error Handling
+			.catch((error) => {
+				handleError(error);
+				res.json({
+					Error: "Page could not be found, please try again. See https://github.com/engstrar/WikipediaScraper for more info.",
+				});
+			});
+	}
 });
 
 // Communication on the server
@@ -135,15 +145,17 @@ function getReferences(wikiData, pageData) {
 			const html = section.text;
 			const $ = cheerio.load(html);
 
-			// Selecting all references
+			// Selecting and adding each reference to a dictionary
 			let refs = $("li");
 			let refNum = 1;
 			references = {};
 
 			refs.each(function () {
-				references[refNum] = "";
+				references[refNum] = $(this).text();
 				refNum++;
 			});
+
+			// Adding all references scraped to pageData
 			pageData.references = references;
 		}
 	}
