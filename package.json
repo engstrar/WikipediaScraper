@@ -1,10 +1,11 @@
 {
-	"name": "wikipediaScraper",
-	"version": "1.0.0",
-	"description": "TBD",
+	"name": "wikipediascraper",
+	"version": "2.0.0",
+	"description": "scrapes data from wikipedia",
 	"main": "app.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node app.js"
 	},
 	"engines": {
 		"node": "15.x"

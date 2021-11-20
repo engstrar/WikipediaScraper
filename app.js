@@ -1,6 +1,5 @@
-// Port commented out for Heroku, but should be used for local deployment
 // Setting the port number
-// const port = 4203;
+const port = process.env.PORT || 4203;
 
 // Setting up Axios for help with requests
 const axios = require("axios");
@@ -16,7 +15,7 @@ const app = express();
 app.get("/", (req, res) => {
 	// Wikipedia API base URL with unique query string from request
 	const url = `https://en.wikipedia.org/api/rest_v1/page/mobile-sections/${req.query.page}?redirect=true`;
-	console.log(url);
+	// console.log(url);
 
 	axios(url)
 		.then((response) => {
