@@ -1,18 +1,16 @@
-# Arek's Wikipedia Scraper v2.1.0
+# Arek's Wikipedia Scraper v3.0.0
 
 This scraper will pull the headings and text data from a Wikipedia page and return the data organized into JSON format. Examples for use are provided in Node.JS and Python3.
 
-Whats New in v2.1.0:
+Whats New in v3.0.0:
 
--   Project is now LIVE on Heroku! (see link below)
--   Basic error handling added for missing and bad search queries
--   References are now scraped, not just their number
+-   All JPEG images are now scraped from each page
+-   Cors module added
 
 Future Development Goals:
 
 -   Scrape sections with tables & bullet points better
 -   Clean data better - there are still a few HTML elements included in the text of the scraped data, especially the references section
--   Scrape images from each page - return URLs for each image Wikipedia provides on the page
 
 ---
 
@@ -44,7 +42,7 @@ nvm use 15.6.0
 3. Install all necessary node modules:
 
 ```
-nmp install express axios cheerio
+nmp install express axios cheerio cors
 ```
 
 4. Run app.js
@@ -116,6 +114,13 @@ When a scraping request is made the scraped data will be stored in JSON format a
          .
       },
    },
+   "imgs":{
+      "1":"Image 1 URL",
+      "2":"Image 2 URL",
+      .
+      .
+      .
+   },
    "references":{
       "1":"reference 1",
       "2":"reference 2",
@@ -130,7 +135,7 @@ _Note: Each Wikipedia page has unique sections. Each section or sub-section may 
 
 Example:
 
-When the data for https://en.wikipedia.org/wiki/Intel is requested, the red box corresponds to the "title", the orange box corresponds to the "intro", the green boxes are the "Section Titles" that will have their corresponding text scraped, the blue boxes are the "Sub-Section Titles" that will have their corresponding text scraped, Sub-Sub-Sections are headings which appear within aSub-Section, and the "references" are the same as Wikipedia includes in their reference section.
+When the data for https://en.wikipedia.org/wiki/Intel is requested, the red box corresponds to the "title", the orange box corresponds to the "intro", the green boxes are the "Section Titles" that will have their corresponding text scraped, the blue boxes are the "Sub-Section Titles" that will have their corresponding text scraped, Sub-Sub-Sections are headings which appear within aSub-Section, "imgs" are all images on the page with the .JPG or .jpg file type, and the "references" are the same as Wikipedia includes in their reference section.
 
 ![Image](references/wikiExample.png)
 
@@ -398,6 +403,16 @@ The following data was scraped from https://en.wikipedia.org/wiki/Intel.
       "Tax dispute in India":{
          "intro":"In August 2016, Indian officials of the Bruhat Bengaluru Mahanagara Palike (BBMP) parked garbage trucks on Intel's campus and threatened to dump them for evading payment of property taxes between 2007 and 2008, to the tune of 340 million Indian rupees (US$4.9 million). Intel had reportedly been paying taxes as a non-air-conditioned office, when the campus in fact had central air conditioning. Other factors, such as land acquisition and construction improvements, added to the tax burden. Previously, Intel had appealed the demand in the Karnataka high court in July, during which the court ordered Intel to pay BBMP half the owed amount (170 million rupees, or US$2.4 million) plus arrears by August 28 of that year.[387][388]"
       }
+   },
+   "imgs":{
+      "1":"https://upload.wikimedia.org/wikipedia/commons/c/ce/2200missioncollegeblvd.jpg",
+      "2":"https://upload.wikimedia.org/wikipedia/commons/2/2a/Andy_Grove_Robert_Noyce_Gordon_Moore_1978_edit.jpg",
+      "3":"https://upload.wikimedia.org/wikipedia/commons/f/fc/Federico_Faggin_%28cropped%29.jpg",
+      "4":"https://upload.wikimedia.org/wikipedia/commons/6/64/Intel_8742_153056995.jpg",
+      "5":"https://upload.wikimedia.org/wikipedia/commons/d/d7/Intel_X25-M_Solid-State_Drive.jpg",
+      "6":"https://upload.wikimedia.org/wikipedia/commons/3/37/Otellini_Barrett_Maloney.jpg",
+      "7":"https://upload.wikimedia.org/wikipedia/commons/f/fc/Intel_Costa_12_2007_SJO_105b.jpg",
+      "8":"https://upload.wikimedia.org/wikipedia/commons/d/da/SF_From_Marin_Highlands3.jpg"
    },
    "references":{
       "1":" \"Intel Corporation 2020 Annual Report Form (10-K)\" (PDF). United States Securities and Exchange Commission. January 22, 2021. Retrieved January 28, 2021.",

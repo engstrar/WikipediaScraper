@@ -11,54 +11,69 @@ const cheerio = require("cheerio");
 const express = require("express");
 const app = express();
 
+const cors = require("cors");
+app.use(cors());
+
 // Scraping Wikipedia
 app.get("/", (req, res) => {
 	// Wikipedia API base URL with unique query string from request
-	const url = `https://en.wikipedia.org/api/rest_v1/page/mobile-sections/${req.query.page}?redirect=true`;
-	console.log(url);
+	const wikiApiUrl = `https://en.wikipedia.org/api/rest_v1/page/mobile-sections/${req.query.page}?redirect=true`;
+	const wikiUrl = `https://en.wikipedia.org/wiki/${req.query.page}`;
+
+	const wikiRequest = axios.get(wikiApiUrl);
+	const imgRequest = axios.get(wikiUrl);
+
+	const errMsg =
+		"Page could not be found, please try again. See https://github.com/engstrar/WikipediaScraper for more info.";
 
 	// If the user did not provide a page to scrape
 	if (!req.query.page) {
 		res.json({
-			Error: "Scrape a page using the query string /?page= in the URL. See https://github.com/engstrar/WikipediaScraper for more info.",
+			Error: errMsg,
 		});
 	} else {
-		axios(url)
-			.then((response) => {
-				// Saving the data received from Wikipedia for easy access
-				const wikiData = response.data;
+		axios
+			.all([wikiRequest, imgRequest])
+			.then(
+				axios.spread((...responses) => {
+					// Saving the data received from Wikipedia for easy access
+					const wikiData = responses[0].data;
+					const wikiHTML = responses[1].data;
+					const imgData = cheerio.load(wikiHTML);
 
-				// Object to store all page data in while scrapping
-				const pageData = {};
+					// Object to store all page data in while scrapping
+					const pageData = {};
 
-				// Scraping the Title and Description
-				getBasicInfo(wikiData.lead, pageData);
+					// Scraping the Title and Description
+					getBasicInfo(wikiData.lead, pageData);
 
-				// Scraping the introduction
-				getIntro(wikiData.lead, pageData);
+					// Scraping the introduction
+					getIntro(wikiData.lead, pageData);
 
-				// Scraping the Sections
-				getSections(wikiData.remaining, pageData);
+					// Scraping the Sections
+					getSections(wikiData.remaining, pageData);
 
-				// WORK IN PROGRESS: Scraping References
-				getReferences(wikiData.remaining, pageData);
+					// Scraping Images
+					getImages(imgData, pageData);
 
-				// Returning JSON data to whoever requested it
-				res.json(pageData);
-			})
+					// Scraping References
+					getReferences(wikiData.remaining, pageData);
+
+					// Returning JSON data to whoever requested it
+					res.json(pageData);
+				})
+			)
 			// Error Handling
 			.catch((error) => {
 				handleError(error);
-				res.json({
-					Error: "Page could not be found, please try again. See https://github.com/engstrar/WikipediaScraper for more info.",
-				});
+				res.json({ Error: errMsg });
 			});
 	}
 });
 
 // Communication on the server
 app.listen(port, () => {
-	console.log(`Listening on port ${port}`);
+	console.log(`LIVE @ http://localhost:${port}/`);
 });
 
 // Helper functions for scraping data
@@ -159,6 +174,33 @@ function getReferences(wikiData, pageData) {
 			pageData.references = references;
 		}
 	}
+}
+
+function getImages($, pageData) {
+	let imgs = {};
+	let imageCounter = 1;
+	const images = $("#bodyContent").find("img");
+	images.each(function () {
+		let src = `https:${$(this).attr("src")}`;
+		let alt = $(this).attr("alt");
+		// Filter out useless images (icons, logos, etc)
+		if (src.includes(".jpg") || src.includes(".JPG")) {
+			imgs[imageCounter] = cleanImageUrl(src);
+			imageCounter++;
+		}
+	});
+
+	// Add image links to pageData
+	pageData.imgs = imgs;
+}
+
+function cleanImageUrl(url) {
+	// Remove thumbnail tag
+	url = url.replace("/thumb/", "/");
+	// Remove cropping at end of URL
+	url = url.substring(0, url.indexOf(".jpg") + 4 || url.indexOf(".JPG") + 4);
+	// Return cleaned URL
+	return url;
 }
 
 function scrapeText(html) {
