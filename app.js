@@ -11,6 +11,7 @@ const cheerio = require("cheerio");
 const express = require("express");
 const app = express();
 
+// Setting up cors module
 const cors = require("cors");
 app.use(cors());
 
@@ -44,19 +45,11 @@ app.get("/", (req, res) => {
 					// Object to store all page data in while scrapping
 					const pageData = {};
 
-					// Scraping the Title and Description
+					// Scraping Wikipedia page data
 					getBasicInfo(wikiData.lead, pageData);
-
-					// Scraping the introduction
 					getIntro(wikiData.lead, pageData);
-
-					// Scraping the Sections
 					getSections(wikiData.remaining, pageData);
-
-					// Scraping Images
 					getImages(imgData, pageData);
-
-					// Scraping References
 					getReferences(wikiData.remaining, pageData);
 
 					// Returning JSON data to whoever requested it
